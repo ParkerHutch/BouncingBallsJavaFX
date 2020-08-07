@@ -24,7 +24,8 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
    double xVelocitySetting = 2.0;
    double yVelocitySetting = 2.0;
    
-   int objectCap = 20;
+   
+   int objectCap = 40;
    
    Ball [] particles = new Ball[objectCap];
    Color [] colorArray = new Color[3];
@@ -43,12 +44,12 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
       for (int i = 0; i < objectCap; i++)
       {
          particles[i] = new Ball();
-         particles[i].radius = Math.random() * ballRadius + 15;
-         particles[i].xVelocity = xVelocitySetting;//Math.random() * 10 - 10;
-         particles[i].yVelocity = yVelocitySetting;//(int)Math.random() * 10 - 10;
+         particles[i].radius = 50.0;//Math.random() * ballRadius + 15;
+         particles[i].xVelocity = (Math.random() * 8) - 4;
+         particles[i].yVelocity = (Math.random() * 8) - 4;
          particles[i].ballList = particles;
          particles[i].color = colorArray[(int)(Math.random() * 3)];
-         particles[i].mass = 3.0;
+         particles[i].mass = Math.pow(particles[i].radius / 40, 3);
       }
       
       
@@ -59,7 +60,8 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
    }
    public void init() throws Exception
    {
-      spawnBalls(); // sets the initial x and y coordinates for every ball
+      ballExplosion();
+      //spawnBalls(); // sets the initial x and y coordinates for every ball
    }
    
    public void start(Stage theStage) throws Exception 
@@ -108,6 +110,10 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
       if (arg0.getCode() == KeyCode.SPACE)
       {
          spawnBalls();
+      }
+      if (arg0.getCode() == KeyCode.Q)
+      {
+         ballExplosion();
       }
       if (arg0.getCode() == KeyCode.A)
       {
@@ -158,6 +164,15 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
       }
    }
    
+   public void ballExplosion()
+   {
+      for (int i = 0; i < particles.length; i++)
+      {
+         particles[i].xPos = 300;
+         particles[i].yPos = 300;
+      }
+   }
+   
    public class Ball
    {
       // position, radius, color, and velocity variables
@@ -167,7 +182,7 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
       Color color;
       double xVelocity;
       double yVelocity;
-      double mass;
+      double mass = Math.pow((this.radius / 40), 3);
       
       // variables for calculating collisions
       double xDistance;
@@ -200,6 +215,16 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
          this.ballList = ballList;
          this.color = c;
          this.mass = mass;
+         
+      }
+      
+      public double getCenterX()
+      {
+         return (this.xPos + (this.radius / 2));
+      }
+      public double getCenterY()
+      {
+         return (this.yPos + (this.radius / 2));
       }
       
       public void update()
@@ -212,8 +237,9 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
       
       public void drawBall()
       {
-         g2d.setFill(this.color);
-         g2d.fillOval(xPos, yPos, this.radius, this.radius);
+         g2d.setStroke(this.color); // instead of setFill
+         g2d.setLineWidth(2.0); // sets line width
+         g2d.strokeOval(xPos, yPos, this.radius, this.radius); // instead of fillOval
       }
       
       public void checkCollisions()
@@ -241,22 +267,8 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
             if (ballList[k] != this)
             {
                // if the ball we're checking a collision for isn't this ball...
-               // calculate distance
-               // c^2 = a^2 + b^2 -> use this to find distance
-               /*
-               distance = getDistance(
-                  this.xPos, this.yPos, ballList[k].xPos, ballList[k].yPos
-               );
-               */
-               
-               /*
-               if ((distance <= ((this.radius + ballList[k].radius) / 2)))
-               {
-                  resolveCollision(this, ballList[k]);
-               }
-               */
-               double deltaX = ballList[k].xPos - this.xPos;
-               double deltaY = ballList[k].yPos - this.yPos;
+               double deltaX = ballList[k].getCenterX() - this.getCenterX();
+               double deltaY = ballList[k].getCenterY() - this.getCenterY();
                if (colliding(this, ballList[k], deltaX, deltaY))
                {
                   bounce(this, ballList[k], deltaX, deltaY);
@@ -265,32 +277,6 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
          }
       }
       
-      public double getDistance(double x1, double y1, double x2, double y2)
-      {
-         double distance;
-         double xDistance = x2 - x1;
-         double yDistance = y2 - y1;
-         
-         distance = Math.sqrt( Math.pow(xDistance, 2) + Math.pow(yDistance, 2) );
-         return distance;
-      }
-      
-      public boolean resolveCollision(Ball particle1, Ball particle2)
-      {
-         
-            double p1xVelocity = particle1.xVelocity;
-            double p1yVelocity = particle1.yVelocity;
-            double p2xVelocity = particle2.xVelocity;
-            double p2yVelocity = particle2.yVelocity; 
-         
-            particle1.xVelocity = p2xVelocity;
-            particle1.yVelocity = p2yVelocity;
-         
-            particle2.xVelocity = p1xVelocity;
-            particle2.yVelocity = p1yVelocity;
-         
-         return true; // change this
-      }
       public boolean colliding(final Ball b1, final Ball b2, final double deltaX, final double deltaY) {
         // square of distance between balls is s^2 = (x2-x1)^2 + (y2-y1)^2
         // balls are "overlapping" if s^2 < (r1 + r2)^2
@@ -298,14 +284,7 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
         // d/dt(s^2) < 0:
         // 2(x2-x1)(x2'-x1') + 2(y2-y1)(y2'-y1') < 0
         
-        final double radiusSum = (b1.radius / 2) + (b2.radius / 2); 
-        /*
-            IMPORTANT:
-            THE REASON THE BALLS ARE COLLIDING INCORRECTLY IS BECAUSE THE RADIUS
-            SUM IS BEING EVALUATED AS AN INTEGER. THIS IS DUE TO THE RADII BEING
-            DIVIDED BY THE INTEGER FORM OF 2(SEE ABOVE EQUATION). THIS WAS PATCHED
-            IN SIMPLEPHYSICS 1.9.
-        */
+        final double radiusSum = (b1.radius + b2.radius) / 2.0; 
         if (deltaX * deltaX + deltaY * deltaY <= (radiusSum * radiusSum)) {
             if ( deltaX * (b2.xVelocity - b1.xVelocity) 
                     + deltaY * (b2.yVelocity - b1.yVelocity) < 0) {
