@@ -1,2 +1,10 @@
 # BouncingBallsJavaFX
-Making a simple demonstration of bouncing balls in JavaFX
+Collision physics, implemented in JavaFX
+
+![](img/demo.gif)
+
+## Controls
+| Input | Effect                                                    |
+|---    |-----------------------------------------------------------|
+| Q     | Big Bang effect from the center of the window             |
+| A     | Direct all balls to the bottom right corner of the screen |
