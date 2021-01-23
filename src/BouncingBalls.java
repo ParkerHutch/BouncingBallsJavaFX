@@ -109,7 +109,7 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
    {
       if (arg0.getCode() == KeyCode.SPACE)
       {
-         spawnBalls();
+         //spawnBalls(); Currently broken
       }
       if (arg0.getCode() == KeyCode.Q)
       {
