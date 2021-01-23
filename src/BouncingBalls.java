@@ -66,7 +66,7 @@ public class BouncingBalls extends Application implements EventHandler<KeyEvent>
    
    public void start(Stage theStage) throws Exception 
    {
-      theStage.setTitle("Simple Physics");
+      theStage.setTitle("Bouncing Balls");
       Group root = new Group();
       Scene scene = new Scene(root, WIDTH, HEIGHT);
       
