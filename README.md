@@ -1,7 +1,7 @@
 # BouncingBallsJavaFX
 Collision physics, implemented in JavaFX
 
-![](img/demo.gif)
+![](img/demo-small.gif)
 
 ## Controls
 | Input | Effect                                                    |
