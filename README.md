@@ -1,4 +1,4 @@
-# BouncingBallsJavaFX
+# bouncing-balls
 Collision physics, implemented in JavaFX
 
 ![](img/demo-small.gif)
